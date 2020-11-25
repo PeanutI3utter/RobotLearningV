@@ -10,14 +10,19 @@
 import numpy as np
 
 def my_ctl(ctl, q, qd, q_des, qd_des, qdd_des, q_hist, q_deshist, gravity, coriolis, M):
+    K_P = np.array([60, 30])
+    K_D = np.array([10, 6])
+    K_I = np.array([.1, .1])
     if ctl == 'P':
-        u = np.zeros((2, 1))  # Implement your controller here
+        u = K_P * (q_des - q)  # Implement your controller here
     elif ctl == 'PD':
-        u = np.zeros((2, 1))  # Implement your controller here
+        u =  K_P * (q_des - q) + K_D * (qd_des - qd) # Implement your controller here
     elif ctl == 'PID':
-        u = np.zeros((2, 1))  # Implement your controller here
+        I =  K_I * np.sum(q_deshist - q_hist, axis=0).reshape(-1) if q_deshist.shape[0] > 0 else np.array([0, 0])
+        u = K_P * (q_des - q) + K_D * (qd_des - qd) + I  # Implement your controller here
     elif ctl == 'PD_Grav':
-        u = np.zeros((2, 1))  # Implement your controller here
+        u =  K_P * (q_des - q) + K_D * (qd_des - qd) + gravity # Implement your controller here
     elif ctl == 'ModelBased':
-        u = np.zeros((2, 1))  # Implement your controller here
-    return u
+        q_ref = qdd_des + K_P * (q_des - q) + K_D * (qd_des - qd)
+        u = M @ q_ref + coriolis + gravity  # Implement your controller here
+    return u.reshape(-1, 1)
