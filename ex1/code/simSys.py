@@ -13,9 +13,12 @@ def simSys(robot, dt, nSteps, ctls, target, pauseTime=False, resting_pos=None):
     plt.ion()
     if pauseTime or target['cartCtl']:
         fig = plt.figure()
-        ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2.5, 2.5), ylim=(-2.5, 2.5))
+        ax = fig.add_subplot(111, autoscale_on=False,
+                             xlim=(-2.5, 2.5), ylim=(-2.5, 2.5))
+        ax.set_aspect('equal')
         plt.plot(2 * np.array([-1.1, 1.1]), np.array([0, 0]), 'b--')
-        line, = ax.plot([], [], 'o-', lw=2, color='k' ,markerfacecolor='w', markersize=12)
+        line, = ax.plot([], [], 'o-', lw=2, color='k',
+                        markerfacecolor='w', markersize=12)
         plt.xlabel('x-axis [m]', fontsize=15)
         plt.ylabel('y-axis [m]', fontsize=15)
 
@@ -32,22 +35,25 @@ def simSys(robot, dt, nSteps, ctls, target, pauseTime=False, resting_pos=None):
             else:
                 J, cart = robot.getJacobian(states[c_idx, ::2], 2)
                 u = my_taskSpace_ctl(ctls[k], dt, np.mat(states[c_idx, ::2]).T,
-                                     np.mat(states[c_idx,1::2]).T, np.mat(gravity).T,
+                                     np.mat(states[c_idx, 1::2]).T, np.mat(
+                                         gravity).T,
                                      np.mat(coriolis).T, M, np.mat(J),
-                                     np.mat(cart).T,  np.mat(target['x'][i,:]).T,
+                                     np.mat(cart).T,  np.mat(
+                                         target['x'][i, :]).T,
                                      resting_pos)
 
             qdd = M ** -1 * (u - np.mat(coriolis).T - np.mat(gravity).T)
             states[c_idx + 1, 1::2] = states[c_idx, 1::2] + dt * qdd.T
-            states[c_idx + 1, ::2] = states[c_idx, 0::2] + dt * states[c_idx + 1, 1::2]
+            states[c_idx + 1, ::2] = states[c_idx, 0::2] + \
+                dt * states[c_idx + 1, 1::2]
 
             if pauseTime:
                 robot.visualize(states[i + 1, :], line)
-                plt.pause(pauseTime)
+                plt.pause(1e-8)
 
         if target['cartCtl']:
-            robot.visualize(states[0,:], line)
-            robot.visualize(states[-1,:], line)
+            robot.visualize(states[0, :], line)
+            robot.visualize(states[-1, :], line)
             plt.pause(0.00001)
 
     return states

@@ -1,6 +1,7 @@
 from jointCtlComp import *
 from taskCtlComp import *
 
+select = ['JacTrans', 'JacPseudo', 'JacDPseudo', 'JacNullSpace']
 # Controller in the joint space. The robot has to reach a fixed position.
 #jointCtlComp(['ModelBased'], False)
 

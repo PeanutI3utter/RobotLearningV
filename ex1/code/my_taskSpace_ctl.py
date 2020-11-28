@@ -11,6 +11,7 @@
 import numpy as np
 from math import pi
 
+
 def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, resting_pos=None):
     KP = np.diag([60, 30])
     KD = np.diag([10, 6])
@@ -21,18 +22,28 @@ def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, res
         qd_des = gamma * J.T * (desCart - cart)
         error = q + qd_des * dt - q
         errord = qd_des - qd
-        u = M * np.vstack(np.hstack([KP,KD])) * np.vstack([error,errord]) + coriolis + gravity
+        u = M * np.vstack(np.hstack([KP, KD])) * \
+            np.vstack([error, errord]) + coriolis + gravity
     elif ctl == 'JacPseudo':
         qd_des = gamma * J.T * np.linalg.pinv(J * J.T) * (desCart - cart)
         error = q + qd_des * dt - q
         errord = qd_des - qd
-        u = M * np.vstack(np.hstack([KP,KD])) * np.vstack([error,errord]) + coriolis + gravity
+        u = M * np.vstack(np.hstack([KP, KD])) * \
+            np.vstack([error, errord]) + coriolis + gravity
     elif ctl == 'JacDPseudo':
-        qd_des = J.T * np.linalg.pinv(J * J.T + dFact * np.eye(2)) * (desCart - cart)
+        qd_des = J.T * np.linalg.pinv(J * J.T +
+                                      dFact * np.eye(2)) * (desCart - cart)
         error = q + qd_des * dt - q
         errord = qd_des - qd
-        u = M * np.vstack(np.hstack([KP,KD])) * np.vstack([error,errord]) + coriolis + gravity
+        u = M * np.vstack(np.hstack([KP, KD])) * \
+            np.vstack([error, errord]) + coriolis + gravity
     elif ctl == 'JacNullSpace':
-        u = np.zeros((2, 1)) # Implement your controller here
+        ipinv_J = J.T @ np.linalg.inv(J@J.T)
+        qd_des = ipinv_J * (desCart - cart) + (np.eye(2) -
+                                               ipinv_J@J)@KP@(resting_pos - q)
+        error = q + qd_des * dt - q
+        errord = qd_des - qd
+        u = M * np.vstack(np.hstack([KP, KD])) * \
+            np.vstack([error, errord]) + coriolis + gravity
 
     return u
