@@ -38,9 +38,8 @@ def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, res
         u = M * np.vstack(np.hstack([KP, KD])) * \
             np.vstack([error, errord]) + coriolis + gravity
     elif ctl == 'JacNullSpace':
-        ipinv_J = J.T @ np.linalg.inv(J@J.T)
-        qd_des = ipinv_J * (desCart - cart) + (np.eye(2) -
-                                               ipinv_J@J)@KP@(resting_pos - q)
+        ipinv_J = J.T * np.linalg.pinv(J*J.T + dFact * np.eye(2))
+        qd_des = ipinv_J @ (desCart - cart) + (np.eye(2) - ipinv_J@J)@KP*(resting_pos - q)
         error = q + qd_des * dt - q
         errord = qd_des - qd
         u = M * np.vstack(np.hstack([KP, KD])) * \

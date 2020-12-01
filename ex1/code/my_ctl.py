@@ -10,9 +10,9 @@
 import numpy as np
 
 def my_ctl(ctl, q, qd, q_des, qd_des, qdd_des, q_hist, q_deshist, gravity, coriolis, M):
-    K_P = np.array([60, 30])
-    K_D = np.array([10, 6])
-    K_I = np.array([.1, .1])
+    K_P = np.array([60, 30]) * 10
+    K_D = np.array([10, 6]) * 10
+    K_I = np.array([.1, .1]) * 10
     if ctl == 'P':
         u = K_P * (q_des - q)  # Implement your controller here
     elif ctl == 'PD':

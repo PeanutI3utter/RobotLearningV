@@ -15,7 +15,7 @@ def simSys(robot, dt, nSteps, ctls, target, pauseTime=False, resting_pos=None):
         fig = plt.figure()
         ax = fig.add_subplot(111, autoscale_on=False,
                              xlim=(-2.5, 2.5), ylim=(-2.5, 2.5))
-        ax.set_aspect('equal')
+        #ax.set_aspect('equal')
         plt.plot(2 * np.array([-1.1, 1.1]), np.array([0, 0]), 'b--')
         line, = ax.plot([], [], 'o-', lw=2, color='k',
                         markerfacecolor='w', markersize=12)
@@ -49,7 +49,7 @@ def simSys(robot, dt, nSteps, ctls, target, pauseTime=False, resting_pos=None):
 
             if pauseTime:
                 robot.visualize(states[i + 1, :], line)
-                plt.pause(1e-8)
+                plt.pause(pauseTime)
 
         if target['cartCtl']:
             robot.visualize(states[0, :], line)
