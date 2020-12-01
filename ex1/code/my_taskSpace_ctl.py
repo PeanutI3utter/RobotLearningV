@@ -8,8 +8,9 @@
 # CART are the coordinates of the current position.
 # DESCART are the coordinates of the desired position.
 
+# Group 80: Si Jun Kwon(2453134), Lukas Schneider(2565695), Michael Erni()
+
 import numpy as np
-from math import pi
 
 
 def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, resting_pos=None):

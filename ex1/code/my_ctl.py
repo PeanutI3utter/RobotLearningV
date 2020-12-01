@@ -7,6 +7,8 @@
 # CORIOLIS is the Coriolis force vector c(q, qd).
 # M is the mass matrix M(q).
 
+# Group 80: Si Jun Kwon(2453134), Lukas Schneider(2565695), Michael Erni()
+
 import numpy as np
 
 def my_ctl(ctl, q, qd, q_des, qd_des, qdd_des, q_hist, q_deshist, gravity, coriolis, M):
