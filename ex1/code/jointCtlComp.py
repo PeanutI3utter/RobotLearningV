@@ -22,7 +22,7 @@ def jointCtlComp(ctls=['P'], isSetPoint=False, pauseTime=False):
     dt = 0.002
     robot = DoubleLink()
     robot.friction = np.array([2.5, 2.5])
-    t_end = 3.0
+    t_end = 5.
     time = np.arange(0, t_end, dt)
     nSteps = len(time)
     numContrlComp = len(ctls)
