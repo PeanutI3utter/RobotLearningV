@@ -8,8 +8,9 @@
 # CART are the coordinates of the current position.
 # DESCART are the coordinates of the desired position.
 
+# Group 80: Si Jun Kwon(2453134), Lukas Schneider(2565695), Michael Erni()
+
 import numpy as np
-from math import pi
 
 
 def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, resting_pos=None):
@@ -38,9 +39,8 @@ def my_taskSpace_ctl(ctl, dt, q, qd, gravity, coriolis, M, J, cart, desCart, res
         u = M * np.vstack(np.hstack([KP, KD])) * \
             np.vstack([error, errord]) + coriolis + gravity
     elif ctl == 'JacNullSpace':
-        ipinv_J = J.T @ np.linalg.inv(J@J.T)
-        qd_des = ipinv_J * (desCart - cart) + (np.eye(2) -
-                                               ipinv_J@J)@KP@(resting_pos - q)
+        ipinv_J = J.T * np.linalg.pinv(J*J.T + dFact * np.eye(2))
+        qd_des = ipinv_J @ (desCart - cart) + (np.eye(2) - ipinv_J@J)@KP*(resting_pos - q)
         error = q + qd_des * dt - q
         errord = qd_des - qd
         u = M * np.vstack(np.hstack([KP, KD])) * \

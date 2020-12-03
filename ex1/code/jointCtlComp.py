@@ -45,6 +45,7 @@ def jointCtlComp(ctls=['P'], isSetPoint=False, pauseTime=False):
     traj_plot(states, colors, numContrlComp, ctls, target['q'], target['qd'], time, 0)
     traj_plot(states, colors, numContrlComp, ctls, target['q'], target['qd'], time, 1)
     plt.pause(0.001)
+    return states, colors, numContrlComp, ctls, target['q'], target['qd'], time
 
 # Just a way to plot, feel free to modify!
 def traj_plot(states, colors, numContrlComp, ctls, q_desired, qd_desired, time, plotVel):
@@ -53,6 +54,7 @@ def traj_plot(states, colors, numContrlComp, ctls, q_desired, qd_desired, time, 
     else:
         y = q_desired
 
+    #plt.axes().set_aspect('equal')
     plt.figure()
 #    plt.hold(True)
 
@@ -64,7 +66,7 @@ def traj_plot(states, colors, numContrlComp, ctls, q_desired, qd_desired, time, 
 
     for k in range(numContrlComp):
         names += [ctls[k] + '_1', ctls[k] + '_2']
-        plt.plot(time, states[:, plotVel::2], linewidth=2)
+        plt.plot(time, states[k*states.shape[0]//numContrlComp:(k+1)*states.shape[0]//numContrlComp, plotVel::2], linewidth=2)
 
     plt.legend(tuple(names))
     plt.xlabel('time(s)', fontsize=15)
