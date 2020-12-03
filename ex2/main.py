@@ -7,7 +7,7 @@ class LQRSim:
     """
     def __init__(self) -> None:
         self.s_hist = np.array([np.random.multivariate_normal(np.zeros((2,)), np.eye(2))]).reshape(2, 1)
-        self.a_hist = np.zeros((1, 0))
+        self.a_hist = np.zeros((0, ))
         self.T = 50
         self.A_t = np.array([
             [1, .1],
@@ -38,7 +38,8 @@ class LQRSim:
             np.array([[[10.], [0.]]] * 15),
             np.array([[[20.], [0.]]] * 36),
             axis=0
-        )
+        ).T[0]
+        self.ran = False
 
     def step_func(self, t):
         return None, None
@@ -50,7 +51,18 @@ class LQRSim:
         for t in range(self.T):
             action, next_state = self.step_func(t)
             self.s_hist = np.append(self.s_hist, next_state, axis=1)
-            self.a_hist = np.append(self.a_hist, action, axis=1)
+            self.a_hist = np.append(self.a_hist, action)
+        self.ran = True
+
+    def calc_reward(self):
+        if not self.ran:
+            raise Exception("The simulation must be run before rewards can calculated")
+        self.reward = np.zeros((self.T, ))
+        err = (self.s_hist[:, -1] - self.r_t[:, -1]).reshape(-1, 1)
+        self.reward[-1] = -err.T@self.R_t[-1]@err
+        for t in range(self.T - 2, -1, -1):
+            err = (self.s_hist[:, t] - self.r_t[:, t])
+            self.reward[t] = -err.T@self.R_t[t]@err-self.a_hist[t].T*self.H_t*self.a_hist[t]
 
 
 class LQR1(LQRSim):
@@ -64,7 +76,12 @@ class LQR1(LQRSim):
 
         
 if __name__ == "__main__":
-    test = LQR1()
-    test.run()
-    print(test.s_hist)
+    # a
+    a = True
+    b = True
+    c = True
+    if a:
+        for _ in range(20):
+            print(_)
+        pass
     
