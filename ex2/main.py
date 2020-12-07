@@ -150,6 +150,9 @@ class Plotter:
 
         cumulative_rewards = np.array([np.cumsum(sim.calc_reward()) for sim in sims])
         reward_mean = np.mean(cumulative_rewards, axis=0)
+        reward_std = np.sqrt(np.var(cumulative_rewards, axis=0))
+        print(f'{prefix} Mean cumulative reward {reward_mean[-1]}')
+        print(f'{prefix} Variance of cumulative reward {reward_std[-1]}')
 
         if s1:
             plt.figure(to_plot['s1'])
