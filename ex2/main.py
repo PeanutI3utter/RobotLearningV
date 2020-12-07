@@ -15,7 +15,7 @@ class LQRSim(abc.ABC):
             [0 , 1]
         ])
         self.B_t = np.array([0, .1]).reshape(-1, 1)
-        self.b_t = np.array([1., 0.])
+        self.b_t = np.array([5., 0.])
         self.Sigma_T = np.array([
             [.01, 0],
             [0, .01]
@@ -93,9 +93,8 @@ class LQR_PCONTROLLER(LQRSim):
 
 
 class LQR_OPTIMAL(LQRSim):
-    def __init__(self, s_des=None) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.s_des = s_des if s_des is not None else self.r_t
         self.V_t = np.zeros_like(self.R_t)
         self.V_t[-1] = self.R_t[-1]
         self.v_t = np.zeros_like(self.r_t)
@@ -188,19 +187,28 @@ class Plotter:
 
 if __name__ == "__main__":
     plotter = Plotter()
+    """
+    # a)
     lqr = [LQR1() for _ in range(20)]
     for sim in lqr:
         sim.run()
     plotter.plot(lqr, prefix='Zero control')
-    zeros = [np.zeros((2, 50)) for _ in range(20)]
+    """
+    
+    # b)
+    zeros = np.zeros((2, 50))
 
-    lqrp = [LQR_PCONTROLLER() for _ in range(20)]
+    lqrp = [LQR_PCONTROLLER(zeros) for _ in range(20)]
     for sim in lqrp:
         sim.run()
     plotter.plot(lqrp, prefix='P controller')
 
+    """
+    # c)
     lqro = [LQR_OPTIMAL() for _ in range(20)]
     for sim in lqro:
         sim.run()
     plotter.plot(lqro, prefix='Optimal value')
+    """
+
     plt.show()
