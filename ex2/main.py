@@ -7,6 +7,7 @@ class LQRSim(abc.ABC):
     """
     Class that simulate the LQR system
     """
+
     def __init__(self) -> None:
         self.s_hist = np.array(
             [np.random.multivariate_normal(np.zeros((2,)), np.eye(2))]
@@ -111,13 +112,13 @@ class LQR_OPTIMAL(LQRSim):
         for t in range(self.T - 2, -1, -1):
             M_t = (self.B_t/(self.H_t +
                              self.B_t.T@self.V_t[t+1]@self.B_t))@self.B_t.T\
-                             @ self.V_t[t + 1]@self.A_t
+                @ self.V_t[t + 1]@self.A_t
             self.V_t[t] = self.R_t[t] + (self.A_t - M_t).T@self.V_t[t + 1]\
                 @ self.A_t
-            self.v_t[:, t] = (self.R_t[t]@self.r_t[:, t].reshape(-1, 1) +
-                              (self.A_t - M_t).T@(self.v_t[:, t + 1]
-                              .reshape(-1, 1) - self.V_t[t + 1]
-                              @ self.b_t.reshape(-1, 1))).reshape(-1)
+            self.v_t[:, t] = (self.R_t[t]@self.r_t[:, t].reshape(-1, 1)
+                              + (self.A_t - M_t).T@(
+                self.v_t[:, t + 1].reshape(-1, 1) - self.V_t[t + 1]
+                @ self.b_t.reshape(-1, 1))).reshape(-1)
 
     def step_func(self, t):
         current_state = self.s_hist[:, t].reshape(-1, 1)
