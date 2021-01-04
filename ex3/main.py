@@ -100,7 +100,8 @@ elif 'F' in locals():
 
     plt.title("RMSE LOO")
     plt.plot(indexes, r[0], color='blue')
-    plt.fill_between(indexes, r[0] - r[1], r[0] + r[1], color='orange')
+    plt.fill_between(indexes, r[0] - np.sqrt(r[1]), r[0] + np.sqrt(r[1]),
+                     color='orange')
     plt.xlabel("Sine order")
     plt.ylabel(u"Mean RMSE \u00B1 std")
     plt.legend()
@@ -113,8 +114,7 @@ elif 'H' in locals():
     xs = np.linspace(0, 6, 601).reshape(-1, 1)
     k = exp_sq_kernel(vx.reshape(-1, 1), tx_.T)
 
-    print(rmse((k @ np.linalg.inv(K) @ ty).reshape(-1),
-                ty.reshape(-1)))
+    print(rmse((k @ np.linalg.inv(K) @ ty).reshape(-1), ty.reshape(-1)))
 
     plt.xlabel("x")
     plt.ylabel("y")
