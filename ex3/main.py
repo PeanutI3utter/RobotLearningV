@@ -24,6 +24,10 @@ def rmse(y, yp):
     return np.sqrt(np.sum((y - yp) ** 2) / y.shape[0])
 
 
+def exp_sq_kernel(xi, xj, sigma=.15):
+    return np.exp(-np.abs(xi - xj) ** 2 / (sigma ** 2))
+
+
 F = True
 # c)
 if 'C' in locals():
@@ -74,6 +78,7 @@ elif 'E' in locals():
     plt.show()
 
     plt.bar(indexes, np.array([rmse(yp, vy) for yp in yps]))
+    print(np.array([rmse(yp, vy) for yp in yps]))
 
     plt.show()
 
@@ -94,8 +99,27 @@ elif 'F' in locals():
         r = np.hstack((r, np.array([[np.mean(rmses)], [np.var(rmses)]])))
 
     plt.title("RMSE LOO")
-    plt.bar(indexes, r[0], yerr=r[1], width=.2, error_kw=dict(elinewidth=4, ecolor='red'))
-    plt.xlabel("Number of features")
+    plt.plot(indexes, r[0], color='blue')
+    plt.fill_between(indexes, r[0] - r[1], r[0] + r[1], color='orange')
+    plt.xlabel("Sine order")
     plt.ylabel(u"Mean RMSE \u00B1 std")
+    plt.legend()
+    plt.show()
+
+
+elif 'H' in locals():
+    tx_ = tx.reshape(-1, 1)
+    K = exp_sq_kernel(tx_, tx_.T)
+    xs = np.linspace(0, 6, 601).reshape(-1, 1)
+    k = exp_sq_kernel(vx.reshape(-1, 1), tx_.T)
+
+    print(rmse((k @ np.linalg.inv(K) @ ty).reshape(-1),
+                ty.reshape(-1)))
+
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.plot(vx, k @ np.linalg.inv(K) @ ty, label='Predicted output')
+    plt.scatter(vx, vy, color='orange', label='Validation data')
+    plt.title('Predicted output on validation input')
     plt.legend()
     plt.show()
