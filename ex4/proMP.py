@@ -16,15 +16,15 @@ def proMP (nBasis, condition=False):
     bandwidth = 0.2
     Phi = getProMPBasis( dt, nSteps, nBasis, bandwidth )
 
-    w = ...
-    mean_w = ...
-    cov_w = ...
-    mean_traj = ...
-    std_traj = ...
+    w = np.linalg.inv(Phi.T @ Phi + 1e-15 * np.eye(nBasis)) @ Phi.T @ q.T
+    mean_w = np.mean(w, axis=1)
+    cov_w = np.cov(w)
+    mean_traj = Phi @ mean_w
+    std_traj = np.sqrt(np.diag(1e-15 * np.eye(nSteps) + Phi @ cov_w @ Phi.T))
 
     plt.figure()
     plt.fill_between(time, mean_traj - 2*std_traj, mean_traj + 2*std_traj, alpha=0.5, edgecolor='#1B2ACC', facecolor='#089FFF')
-    plt.plot(time, mean_traj, color='#1B2ACC')
+    plt.plot(time, mean_traj, color='#1B2ACC', label='ProMP')
     plt.plot(time, q.T)
     plt.title('ProMP with ' + str(nBasis) + ' basis functions')
 
@@ -51,5 +51,6 @@ def proMP (nBasis, condition=False):
         plt.plot(time,sample_traj)
         plt.title('ProMP after contidioning with new sampled trajectories')
 
+    plt.legend()
     plt.draw_all()
     plt.pause(0.001)

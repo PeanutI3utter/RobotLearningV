@@ -10,7 +10,10 @@ import numpy as np
 
 def dmpCtl (dmpParams, psi_i, q, qd):
 
-    qdd =
+    qdd = (
+        dmpParams.tau**2 * (dmpParams.alpha * (dmpParams.beta *
+            (dmpParams.goal - q) - qd / dmpParams.tau) + psi_i.T @ dmpParams.w)
+    )
 
     return qdd
 

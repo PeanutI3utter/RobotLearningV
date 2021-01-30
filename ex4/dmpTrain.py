@@ -26,20 +26,21 @@ def dmpTrain (q, qd, qdd, dt, nSteps):
 
     params = dmpParams()
     #Set dynamic system parameters
-    params.alphaz =
-    params.alpha  =
-    params.beta	 =
-    params.Ts     =
-    params.tau    =
-    params.nBasis =
-    params.goal   =
+    params.alphaz = 3 / (nSteps * dt)
+    params.alpha  = 25
+    params.beta	  = 6.25
+    params.Ts     = np.linspace(0, int(nSteps * dt), int(nSteps))
+    params.tau    = 1
+    params.nBasis = 50
+    params.goal   = q[:, -1]
 
     Phi = getDMPBasis(params, dt, nSteps)
 
     #Compute the forcing function
-    ft =
+    ft = (qdd / params.tau ** 2 - params.alpha *
+        (params.beta * (params.goal.reshape(-1,1) - q) -qd / params.tau))
 
     #Learn the weights
-    params.w =
+    params.w = np.linalg.inv(Phi.T@Phi + 1e-15*np.identity(params.nBasis))@Phi.T@ft.T
 
     return params

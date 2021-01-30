@@ -8,7 +8,7 @@ plt.ion()
 
 #Reproduce the desired trajectory with a DMP and save a plot
 dmpComparison([], [], 'dmp')
-
+plt.show()
 #Reproduce the trajectory and condition on the goal position
 dmpComparison([[0,0.2],[0.8,0.5]], [], 'goalCond')
 
