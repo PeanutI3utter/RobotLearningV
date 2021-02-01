@@ -1,12 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.lib.twodim_base import diag
 from getImitationData import *
 from getProMPBasis import *
 
-def proMP (nBasis, condition=False):
+
+def proMP(nBasis, condition=False):
 
     dt = 0.002
-    time = np.arange(dt,3,dt)
+    time = np.arange(dt, 3, dt)
     nSteps = len(time)
     data = getImitationData(dt, time, multiple_demos=True)
     q = data[0]
@@ -14,7 +16,7 @@ def proMP (nBasis, condition=False):
     qdd = data[2]
 
     bandwidth = 0.2
-    Phi = getProMPBasis( dt, nSteps, nBasis, bandwidth )
+    Phi = getProMPBasis(dt, nSteps, nBasis, bandwidth)
 
     w = np.linalg.inv(Phi.T @ Phi + 1e-15 * np.eye(nBasis)) @ Phi.T @ q.T
     mean_w = np.mean(w, axis=1)
@@ -23,33 +25,49 @@ def proMP (nBasis, condition=False):
     std_traj = np.sqrt(np.diag(1e-15 * np.eye(nSteps) + Phi @ cov_w @ Phi.T))
 
     plt.figure()
-    plt.fill_between(time, mean_traj - 2*std_traj, mean_traj + 2*std_traj, alpha=0.5, edgecolor='#1B2ACC', facecolor='#089FFF')
-    plt.plot(time, mean_traj, color='#1B2ACC', label='ProMP')
+    plt.fill_between(
+        time, mean_traj - 2 * std_traj, mean_traj + 2 * std_traj, alpha=0.5, edgecolor="#1B2ACC", facecolor="#089FFF"
+    )
+    plt.plot(time, mean_traj, color="#1B2ACC", label="ProMP")
     plt.plot(time, q.T)
-    plt.title('ProMP with ' + str(nBasis) + ' basis functions')
+    plt.title("ProMP with " + str(nBasis) + " basis functions")
 
-    #Conditioning
+    # Conditioning
     if condition:
         y_d = 3
         Sig_d = 0.0002
-        t_point = np.round(2300/2)
+        t_point = int(np.round(2300 / 2))
 
-        tmp = np.dot(cov_w, Phi[:,t_point]) / (Sig_d + np.dot(Phi[:,t_point].T,np.dot(cov_w,Phi[:,t_point])))
+        tmp = np.dot(cov_w, Phi[t_point]) / (Sig_d + np.dot(Phi[t_point].T, np.dot(cov_w, Phi[t_point])))
 
-        cov_w_new = ...
-        mean_w_new = ...
-        mean_traj_new = ...
-        std_traj_new = ...
+        cov_w_new = cov_w - tmp.reshape(-1, 1) @ Phi[t_point].reshape(-1, 1).T @ cov_w
+        mean_w_new = mean_w + tmp * (y_d - Phi[t_point] @ mean_w)
+        mean_traj_new = Phi @ mean_w_new
+        std_traj_new = np.sqrt(np.array(np.diagonal(Phi @ cov_w_new @ Phi.T)))
 
         plt.figure()
-        plt.fill_between(time, mean_traj - 2*std_traj, mean_traj + 2*std_traj, alpha=0.5, edgecolor='#1B2ACC', facecolor='#089FFF')
-        plt.plot(time,mean_traj, color='#1B2ACC')
-        plt.fill_between(time, mean_traj_new - 2*std_traj_new, mean_traj_new + 2*std_traj_new, alpha=0.5, edgecolor='#CC4F1B', facecolor='#FF9848')
-        plt.plot(time, mean_traj_new, color='#CC4F1B')
+        plt.fill_between(
+            time,
+            mean_traj - 2 * std_traj,
+            mean_traj + 2 * std_traj,
+            alpha=0.5,
+            edgecolor="#1B2ACC",
+            facecolor="#089FFF",
+        )
+        plt.plot(time, mean_traj, color="#1B2ACC")
+        plt.fill_between(
+            time,
+            mean_traj_new - 2 * std_traj_new,
+            mean_traj_new + 2 * std_traj_new,
+            alpha=0.5,
+            edgecolor="#CC4F1B",
+            facecolor="#FF9848",
+        )
+        plt.plot(time, mean_traj_new, color="#CC4F1B")
 
-        sample_traj = np.dot(Phi.T,np.random.multivariate_normal(mean_w_new,cov_w_new,10).T)
-        plt.plot(time,sample_traj)
-        plt.title('ProMP after contidioning with new sampled trajectories')
+        sample_traj = np.dot(Phi, np.random.multivariate_normal(mean_w_new, cov_w_new, 10).T)
+        plt.plot(time, sample_traj)
+        plt.title("ProMP after contidioning with new sampled trajectories")
 
     plt.legend()
     plt.draw_all()
