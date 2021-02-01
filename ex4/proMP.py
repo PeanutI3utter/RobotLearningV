@@ -18,6 +18,13 @@ def proMP(nBasis, condition=False):
     bandwidth = 0.2
     Phi = getProMPBasis(dt, nSteps, nBasis, bandwidth)
 
+    plt.figure()
+    plt.title("RBFs over time")
+    plt.xlabel("time")
+    plt.ylabel("Function value of basis functions")
+    for i in range(Phi.shape[1]):
+        plt.plot(time, Phi[:, i])
+
     w = np.linalg.inv(Phi.T @ Phi + 1e-15 * np.eye(nBasis)) @ Phi.T @ q.T
     mean_w = np.mean(w, axis=1)
     cov_w = np.cov(w)
