@@ -12,7 +12,8 @@ def genGridWorld():
     C = -3000 # Cat
     T = 1000  # Toy
     grid_list = {0:'', O:'O', D:'D', W:'W', C:'C', T:'T'}
-    grid_world = np.array([[0, O, O, 0, 0, O, O, 0, 0, 0],
+    grid_world = np.array([
+        [0, O, O, 0, 0, O, O, 0, 0, 0],
         [0, 0, 0, 0, D, O, 0, 0, D, 0],
         [0, D, 0, 0, 0, O, 0, 0, O, 0],
         [O, O, O, O, 0, O, 0, O, O, O],
@@ -64,9 +65,9 @@ height = 9
 width = 10
 
 actions = {
-    0: {'y': -1, 'x': 0},
+    0: {'y': 1, 'x': 0},
     1: {'y': 0, 'x': 1},
-    2: {'y': 1, 'x': 0},
+    2: {'y': -1, 'x': 0},
     3: {'y': 0, 'x': -1},
     4: {'y': 0, 'x': 0}
 }
@@ -120,7 +121,7 @@ def ValIter(R, discount, maxSteps, infHor, probModel=None):
                             }
                             vnew += (
                                 rap[real_action]
-                                * (R[new_state['y'], new_state['x']]
+                                * (R[h, w]
                                     + discount * V[new_state['y'], new_state['x'], maxSteps - t - 1])
                             )
                         if vmax is None or vmax < vnew:
@@ -158,7 +159,7 @@ def findPolicy(V, probModel=None):
                             * (
                                 V[new_state['y'], new_state['x']])
                         )
-                    if a_max is None or a_val < v:
+                    if a_max is None or a_val <= v:
                         a_max = a
                         a_val = v
             p[h, w] = a_max
@@ -172,16 +173,57 @@ grid_world = data[0]
 grid_list = data[1]
 
 # YOUR CODE HERE
-probModel = ...
+def probModel(y, x, action):
+    assert legal(y, x, action)
+    if action == 0 or action == 2:
+        if x == width - 1:
+            return {
+                action: 0.7,
+                3: 0.2,
+                4: 0.1
+            }
+        elif x == 0:
+            return {
+                action: 0.7,
+                1: 0.2,
+                4: 0.1
+            }
+        else:
+            return {
+                action: 0.7,
+                1: 0.1,
+                3: 0.1,
+                4: 0.1
+            }
+    elif action == 1 or action == 3:
+        if y == height - 1:
+            return {
+                action: 0.7,
+                2: 0.2,
+                4: 0.1
+            }
+        elif y == 0:
+            return {
+                action: 0.7,
+                0: 0.2,
+                4: 0.1
+            }
+        else:
+            return {
+                action: 0.7,
+                0: 0.1,
+                2: 0.1,
+                4: 0.1
+            }
+    else:
+        return {4: 1}
 
 ax = showWorld(grid_world, 'Environment')
 showTextState(grid_world, grid_list, ax)
 if saveFigures:
     plt.savefig('gridworld.pdf')
-
-# Finite Horizon
 V = ValIter(grid_world, 1, 15, False)
-V = V[:,:,0];
+V = V[:,:,0]
 showWorld(np.maximum(V, 0), 'Value Function - Finite Horizon')
 if saveFigures:
     plt.savefig('value_Fin_15.pdf')
@@ -193,25 +235,26 @@ if saveFigures:
     plt.savefig('policy_Fin_15.pdf')
 
 # Infinite Horizon
-V = ValIter(...)
+V = ValIter(grid_world, .8, 10000, True)
+V = V[:,:,0];
 showWorld(np.maximum(V, 0), 'Value Function - Infinite Horizon')
 if saveFigures:
     plt.savefig('value_Inf_08.pdf')
 
-policy = findPolicy(...);
+policy = findPolicy(V)
 ax = showWorld(grid_world, 'Policy - Infinite Horizon')
 showPolicy(policy, ax)
 if saveFigures:
     plt.savefig('policy_Inf_08.pdf')
 
 # Finite Horizon with Probabilistic Transition
-V = ValIter(...)
-V = V[:,:,0];
+V = ValIter(grid_world, 1, 15, False, probModel)
+V = V[:,:,0]
 showWorld(np.maximum(V, 0), 'Value Function - Finite Horizon with Probabilistic Transition')
 if saveFigures:
     plt.savefig('value_Fin_15_prob.pdf')
 
-policy = findPolicy(...)
+policy = findPolicy(V, probModel)
 ax = showWorld(grid_world, 'Policy - Finite Horizon with Probabilistic Transition')
 showPolicy(policy, ax)
 if saveFigures:
